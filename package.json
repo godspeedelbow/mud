@@ -12,11 +12,13 @@
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1"
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-watch": "^2.0.6",
+    "glob": "^7.1.1"
   },
   "scripts": {
-    "start": "babel-node index.js --presets es2015,stage-2",
-    "test": "babel-node store.spec.js --presets es2015,stage-2"
+    "start": "babel-watch index.js --presets es2015,stage-2",
+    "test": "babel-watch test.js --presets es2015,stage-2"
   },
   "author": "",
   "license": "ISC"
