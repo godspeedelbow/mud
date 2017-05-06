@@ -1,5 +1,7 @@
 import omit from 'lodash/omit';
 
+import store from '../store';
+
 // reducer
 export default function players(state = {}, action) {
   switch (action.type) {
@@ -15,8 +17,8 @@ export default function players(state = {}, action) {
 }
 
 let playerCount = 0;
-export const playerJoins = dispatch => name => {
-  dispatch({
+export const playerJoins = name => {
+  store.dispatch({
       type: 'PLAYER_JOIN',
       id: playerCount++,
       name,
@@ -24,8 +26,8 @@ export const playerJoins = dispatch => name => {
   return playerCount;
 }
 
-export const playerQuits = dispatch => id => {
-  dispatch({
+export const playerQuits = id => {
+  store.dispatch({
       type: 'PLAYER_QUIT',
       id,
   });

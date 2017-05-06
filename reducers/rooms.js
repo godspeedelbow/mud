@@ -1,5 +1,7 @@
 import without from 'lodash/without';
 
+import store from '../store';
+
 const world = {
   1: {
     name: 'Limbo',
@@ -30,16 +32,16 @@ export default function rooms(state = world, action) {
   }
 }
 
-export const playerEnters = dispatch => (roomId, playerId) => {
-  dispatch({
+export const playerEnters = (roomId, playerId) => {
+  store.dispatch({
       type: 'PLAYER_ENTERS',
       roomId,
       playerId,
   });
 };
 
-export const playerLeaves = dispatch => (roomId, playerId) => {
-  dispatch({
+export const playerLeaves = (roomId, playerId) => {
+  store.dispatch({
       type: 'PLAYER_LEAVES',
       roomId,
       playerId,
