@@ -5,7 +5,7 @@ import store from '../store';
 const world = {
   1: {
     name: 'Limbo',
-    description: 'You are in void where nothing is everything and everything is nothing.',
+    description: 'You are in a void where nothing is everything and everything is nothing.',
     players: [],
   },
 };
