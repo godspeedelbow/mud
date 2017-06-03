@@ -21,7 +21,9 @@
   },
   "scripts": {
     "start": "babel-watch index.js --presets es2015,stage-2",
-    "test": "babel-watch test.js --presets es2015,stage-2"
+    "test": "babel-node test.js --presets es2015,stage-2",
+    "tdd": "babel-watch test.js --presets es2015,stage-2",
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC"
