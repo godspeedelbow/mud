@@ -32,16 +32,30 @@ use(/quit/, ({ l, client }) => {
   client.end();
 });
 
-use(/north/, ({ l, prompt, client }) => {
-  const newRoomId = playerMoves('north', client.userId);
-  if (!newRoomId) {
-    l('not allowed');
-  } else {
-    l('you go north');
-    renderRoom(l, newRoomId);
-  }
-  prompt();
-});
+const moveToDirection = direction => ({ l, client, prompt }) => {
+    console.log(direction);
+    const newRoomId = playerMoves(direction, client.userId);
+    if (!newRoomId) {
+        l('not allowed');
+    } else {
+        l(`you go ${direction}`);
+        renderRoom(l, newRoomId);
+    }
+    prompt();
+};
+
+use(/north/, moveToDirection('north'));
+use(/^n/, moveToDirection('north'));
+
+use(/south/, moveToDirection('south'));
+use(/^s/, moveToDirection('south'));
+
+use(/east/, moveToDirection('east'));
+use(/^e/, moveToDirection('east'));
+
+use(/west/, moveToDirection('west'));
+use(/^w/, moveToDirection('west'));
+
 
 use(({ l, prompt, command }) => {
   l(`unknown command: ${command}`);

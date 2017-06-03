@@ -17,8 +17,26 @@ const world = {
     players: [],
     directions: {
       south: 1,
+      west: 3,
+      east: 4,
     }
   },
+  3: {
+    name: '3rd Room',
+    description: 'this is nice',
+    players: [],
+    directions: {
+        east: 2,
+    },
+  },
+  4: {
+    name: '4rd Room',
+    description: 'this is less nice',
+    players: [],
+    directions: {
+      west: 2,
+    },
+  }
 };
 export default function rooms(state = world, action) {
   switch (action.type) {
