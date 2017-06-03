@@ -26,7 +26,7 @@ const world = {
     description: 'this is nice',
     players: [],
     directions: {
-        east: 2,
+      east: 2,
     },
   },
   4: {
@@ -36,7 +36,7 @@ const world = {
     directions: {
       west: 2,
     },
-  }
+  },
 };
 export default function reduceRooms(state = world, action) {
   switch (action.type) {

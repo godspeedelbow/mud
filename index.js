@@ -1,3 +1,5 @@
+import colors from 'colors'; // eslint-disable-line no-unused-vars
+
 import store from './store';
 
 import { playerJoins, playerQuits } from './reducers/players';
@@ -22,7 +24,7 @@ use(/join/, ({ l, prompt, client }) => {
   client.userId = playerJoins(name);
   const roomId = 1;
   playerEnters(roomId, client.userId);
-  renderRoom(l, roomId);
+  renderRoom(l, client, roomId);
   prompt();
 });
 
@@ -33,15 +35,15 @@ use(/quit/, ({ l, client }) => {
 });
 
 const moveToDirection = direction => ({ l, client, prompt }) => {
-    console.log(direction);
-    const newRoomId = playerMoves(direction, client.userId);
-    if (!newRoomId) {
-        l('not allowed');
-    } else {
-        l(`you go ${direction}`);
-        renderRoom(l, newRoomId);
-    }
-    prompt();
+  console.log(direction);
+  const newRoomId = playerMoves(direction, client.userId);
+  if (!newRoomId) {
+    l('not allowed');
+  } else {
+    l(`you go ${direction}`);
+    renderRoom(l, client, newRoomId);
+  }
+  prompt();
 };
 
 use(/north/, moveToDirection('north'));
@@ -62,10 +64,17 @@ use(({ l, prompt, command }) => {
   prompt();
 });
 
-const renderRoom = (l, roomId) => {
-  const room = store.getState().rooms[roomId];
+const renderRoom = (l, client, roomId) => {
+  // const room = store.getState().rooms[roomId];
+  const {
+    rooms: { [roomId]: room },
+    players,
+  } = store.getState();
   l(room.name.bold);
   l(room.description);
+  const playerNames = room.players
+    .filter(playerId => playerId !== client.userId)
+    .map(playerId => players[playerId].name).join(', ');
   l();
-  l(`The only thing you can do here, is wait. Type ${'quit'.underline} to leave.`);
+  l(`${'Players in the room:'.blue.bold} ${playerNames.length ? playerNames : 'none'}`);
 };
