@@ -1,14 +1,15 @@
-const telnet = require('telnet');
-
 import { v4 } from 'uuid';
-import colors from 'colors';
+
+import colors from 'colors'; // eslint-disable-line no-unused-vars
+
 
 const USER_CONNECTED = v4();
+const telnet = require('telnet');
 
 const port = 1337;
 console.log('starting server on port:', port);
 
-telnet.createServer(function (client) {
+telnet.createServer(client => {
   console.log('new client');
 
   // make unicode characters work properly
@@ -18,14 +19,14 @@ telnet.createServer(function (client) {
   client.do.window_size();
 
   // listen for the window size events from the client
-  client.on('window size', function (e) {
+  client.on('window size', e => {
     if (e.command === 'sb') {
       console.log('telnet window resized to %d x %d', e.width, e.height);
     }
   });
 
   const l = (message = '') => client.write(`${message}\n`);
-  const prompt = () => client.write(`\n> `.yellow.bold);
+  const prompt = () => client.write('\n> '.yellow.bold);
 
   const processCommand = getCommandProcessor({ l, prompt, client });
 
@@ -41,18 +42,16 @@ const getCommandProcessor = middlewareProps => command => {
     middlewareExecuted = true;
     response({
       command,
-      ...middlewareProps
+      ...middlewareProps,
     });
   };
 
   middlewares.forEach(({ matchCommand, response }) => {
     if (matchCommand === command) {
-      executeMiddleware(response);
-      return;
+      return executeMiddleware(response);
     }
     if (matchCommand instanceof RegExp && command.match(matchCommand)) {
-      executeMiddleware(response);
-      return;
+      return executeMiddleware(response);
     }
   });
 
@@ -67,7 +66,7 @@ function use(matchCommand, response) {
   if (response) {
     return middlewares.push({
       matchCommand,
-      response
+      response,
     });
   }
   response = matchCommand;

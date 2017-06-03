@@ -13,20 +13,20 @@ use(/join/, ({ l, prompt, client }) => {
   const name = 'elbow';
   l('You open your eyes, look around you and see that you are in....');
   l();
-  client.userId = playerJoins('elbow');
+  client.userId = playerJoins(name);
   const roomId = 1;
   playerEnters(roomId, client.userId);
   const room = store.getState().rooms[roomId];
   l(room.name.bold);
   l(room.description);
   l();
-  l(`The only thing you can do here, is wait. Type ${`quit`.underline} to leave.`);
+  l(`The only thing you can do here, is wait. Type ${'quit'.underline} to leave.`);
   prompt();
 });
 
 use(USER_CONNECTED, ({ l, prompt }) => {
   l('Connected to MUD!'.red.bold);
-  l(`Type ${`join`.underline} to join.\n`);
+  l(`Type ${'join'.underline} to join.\n`);
   prompt();
 });
 

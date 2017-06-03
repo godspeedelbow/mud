@@ -9,7 +9,7 @@ const world = {
     players: [],
   },
 };
-export default function rooms(state = world, action) {
+export default function reduceRooms(state = world, action) {
   switch (action.type) {
     case 'PLAYER_ENTERS':
       return {
@@ -34,16 +34,16 @@ export default function rooms(state = world, action) {
 
 export const playerEnters = (roomId, playerId) => {
   store.dispatch({
-      type: 'PLAYER_ENTERS',
-      roomId,
-      playerId,
+    type: 'PLAYER_ENTERS',
+    roomId,
+    playerId,
   });
 };
 
 export const playerLeaves = (roomId, playerId) => {
   store.dispatch({
-      type: 'PLAYER_LEAVES',
-      roomId,
-      playerId,
+    type: 'PLAYER_LEAVES',
+    roomId,
+    playerId,
   });
 };
