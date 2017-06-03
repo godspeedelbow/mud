@@ -9,23 +9,29 @@ import { use, USER_CONNECTED } from './server';
 
 use(USER_CONNECTED, ({ l, prompt }) => {
   l('Connected to MUD!'.red.bold);
-  l(`Type ${'join'.underline} to join.\n`);
+  l(`Type ${'join'.underline} ${'username'.underline} to join.\n`);
   prompt();
 });
 
 use(/join/, middlewareProps => {
-  const { l, prompt, client } = middlewareProps;
+  const { l, prompt, client, commands } = middlewareProps;
   if (client.userId) {
     l('You are already in the game');
     return prompt();
   }
-  const name = 'elbow';
-  l('You open your eyes, look around you and see that you are in....');
-  l();
-  client.userId = playerJoins(name);
-  const roomId = 1;
-  playerEnters(roomId, client.userId);
-  renderRoom(middlewareProps);
+  const name = commands[1];
+
+  const player = playerJoins(name);     //this is so hacky
+  if(player){
+      l('You open your eyes, look around you and see that you are in....');
+      l();
+      client.userId = player;
+      const roomId = 1;
+      playerEnters(roomId, client.userId);
+      renderRoom(middlewareProps);
+  } else {
+    l('Username Taken, try again:')
+  }
 });
 
 use(['quit', 'exit'], ({ l, client }) => {

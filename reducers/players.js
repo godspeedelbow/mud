@@ -21,7 +21,6 @@ export default function players(state = {}, action) {
           roomId: action.roomId,
         },
       };
-
     default:
       return state;
   }
@@ -29,13 +28,21 @@ export default function players(state = {}, action) {
 
 let playerCount = 0;
 export const playerJoins = name => {
-  playerCount++;
-  store.dispatch({
-    type: 'PLAYER_JOIN',
-    id: playerCount,
-    name,
-  });
-  return playerCount;
+  const { players } = store.getState();
+
+  //Checks if username is available
+  if(!Object.keys(players).map(id => players[id].name).join(',').includes(name)) {
+      playerCount++;
+      store.dispatch({
+          type: 'PLAYER_JOIN',
+          id: playerCount,
+          name,
+      });
+      return playerCount;
+  } else {
+      console.log("username taken");
+      return false;
+  }
 };
 
 export const playerQuits = id => {

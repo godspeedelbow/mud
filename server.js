@@ -38,10 +38,12 @@ telnet.createServer(client => {
 
 const getCommandProcessor = middlewareProps => command => {
   let middlewareExecuted = false;
+  const commands = command.split(' ');
+  console.log('command:' + command);
   const executeMiddleware = response => {
     middlewareExecuted = true;
     response({
-      command,
+      commands,
       ...middlewareProps,
     });
   };
