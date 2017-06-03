@@ -9,7 +9,7 @@ const world = {
     players: [],
     directions: {
       north: 2,
-    }
+    },
   },
   2: {
     name: 'The Neighboring Room',
@@ -19,7 +19,7 @@ const world = {
       south: 1,
       west: 3,
       east: 4,
-    }
+    },
   },
   3: {
     name: '3rd Room',
@@ -38,7 +38,7 @@ const world = {
     },
   }
 };
-export default function rooms(state = world, action) {
+export default function reduceRooms(state = world, action) {
   switch (action.type) {
     case 'PLAYER_ENTERS':
       return {
@@ -63,17 +63,17 @@ export default function rooms(state = world, action) {
 
 export const playerEnters = (roomId, playerId) => {
   store.dispatch({
-      type: 'PLAYER_ENTERS',
-      roomId,
-      playerId,
+    type: 'PLAYER_ENTERS',
+    roomId,
+    playerId,
   });
 };
 
 export const playerLeaves = (roomId, playerId) => {
   store.dispatch({
-      type: 'PLAYER_LEAVES',
-      roomId,
-      playerId,
+    type: 'PLAYER_LEAVES',
+    roomId,
+    playerId,
   });
 };
 
@@ -87,9 +87,9 @@ export const playerMoves = (direction, playerId) => {
     return false;
   }
   store.dispatch({
-      type: 'PLAYER_ENTERS',
-      roomId: newRoomId,
-      playerId,
+    type: 'PLAYER_ENTERS',
+    roomId: newRoomId,
+    playerId,
   });
   return newRoomId;
 };
