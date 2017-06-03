@@ -34,29 +34,26 @@ use(['quit', 'exit'], ({ l, client }) => {
   client.end();
 });
 
+
 const moveToDirection = direction => middlewareProps => {
   const { l, client } = middlewareProps;
-  console.log(direction);
+  // console.log('taken direction: ');
+  // console.log(direction);
   const newRoomId = playerMoves(direction, client.userId);
   if (!newRoomId) {
     l(`you cannot go ${direction}`);
   } else {
-    l(`you go ${direction}`);
+    l(`You go ${direction}`);
     renderRoom(middlewareProps);
   }
 };
 
-use(/north/, moveToDirection('north'));
-use(/^n/, moveToDirection('north'));
+// Direction commands
+use(['north', 'n'], moveToDirection('north'));
+use(['south', 's'], moveToDirection('south'));
+use(['east', 'e'], moveToDirection('east'));
+use(['west','w'], moveToDirection('west'));
 
-use(/south/, moveToDirection('south'));
-use(/^s/, moveToDirection('south'));
-
-use(/east/, moveToDirection('east'));
-use(/^e/, moveToDirection('east'));
-
-use(/west/, moveToDirection('west'));
-use(/^w/, moveToDirection('west'));
 
 use(['look', 'l'], ({ l, client }) => {
   const { players: { [client.userId]: { roomId } } } = store.getState();
@@ -77,6 +74,19 @@ const renderRoom = ({ l, client, prompt }) => {
   } = state;
   l(room.name.bold);
   l(room.description);
+
+  const userDirectionOptions = (room) => {
+    // console.log('room: ');
+    // console.log(room);
+    const directionOptions = Object
+      .keys(room.directions)
+      //.reduce((memo, direction) => memo + ', ' + direction, '')
+      .join(', ');
+      return directionOptions;
+  };
+  //const directionOptions = userDirectionOptions(room);
+  l(`From this room you can go: ${userDirectionOptions(room)}`);
+
   const playerNames = room.players
     .filter(playerId => playerId !== client.userId)
     .map(playerId => players[playerId].name).join(', ');
