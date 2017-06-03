@@ -100,6 +100,7 @@ export const playerMoves = (direction, playerId) => {
     roomId: newRoomId,
     playerId,
   });
+  roomEmitter.emit(roomId, `${name} walks ${direction}.`);
   roomEmitter.emit(newRoomId, `${name} walks in from the ${oppossite(direction)}.`);
   return newRoomId;
 };
@@ -113,3 +114,5 @@ function oppossite(direction) {
   };
   return oppossites[direction];
 }
+
+Object.keys(world).forEach(roomId => roomEmitter.on(roomId, str => console.log(roomId, str)));

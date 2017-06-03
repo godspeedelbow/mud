@@ -7,11 +7,12 @@ import { playerEnters, playerMoves, roomEmitter } from './reducers/rooms';
 
 import { createTellnetServer, use, USER_CONNECTED } from './server';
 
-const createRoomListener = ({ l }) => {
+const createRoomListener = ({ l, prompt }) => {
   let roomId;
 
   const log = msg => {
     l(`\n${msg}`);
+    prompt();
   };
 
   return newRoomId => {
@@ -80,11 +81,6 @@ use(['south', 's'], moveToDirection('south'));
 use(['east', 'e'], moveToDirection('east'));
 use(['west', 'w'], moveToDirection('west'));
 
-use(['look', 'l'], ({ l, client }) => {
-  const { players: { [client.userId]: { roomId } } } = store.getState();
-  renderRoom(l, client, roomId);
-});
-
 use(({ l, command }) => {
   l(`unknown command: ${command}`);
 });
@@ -111,3 +107,5 @@ const renderRoom = ({ l, client }) => {
   l();
   l(`${'Players in the room:'.blue.bold} ${playerNames.length ? playerNames : 'none'}`);
 };
+
+use(['look', 'l'], renderRoom);
