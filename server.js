@@ -1,6 +1,7 @@
 const telnet = require('telnet');
 
 import { v4 } from 'uuid';
+
 import colors from 'colors';
 
 const USER_CONNECTED = v4();
@@ -25,7 +26,7 @@ telnet.createServer(function (client) {
   });
 
   const l = (message = '') => client.write(`${message}\n`);
-  const prompt = () => client.write(`\n> `.yellow.bold);
+  const prompt = () => client.write('\n> '.yellow.bold);
 
   const processCommand = getCommandProcessor({ l, prompt, client });
 
@@ -41,7 +42,7 @@ const getCommandProcessor = middlewareProps => command => {
     middlewareExecuted = true;
     response({
       command,
-      ...middlewareProps
+      ...middlewareProps,
     });
   };
 
