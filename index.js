@@ -3,21 +3,45 @@ import colors from 'colors'; // eslint-disable-line no-unused-vars
 import store from './store';
 
 import { playerJoins, playerQuits } from './reducers/players';
-import { playerEnters, playerMoves } from './reducers/rooms';
+import { playerEnters, playerMoves, roomEmitter } from './reducers/rooms';
 
-import { use, USER_CONNECTED } from './server';
+import { createTellnetServer, use, USER_CONNECTED } from './server';
 
-use(USER_CONNECTED, ({ l, prompt }) => {
+const createRoomListener = ({ l }) => {
+  let roomId;
+
+  const log = msg => {
+    l(`\n${msg}`);
+  };
+
+  return newRoomId => {
+    roomId && roomEmitter.removeListener(roomId, log); // eslint-disable-line no-unused-expressions
+    roomEmitter.on(newRoomId, log);
+    roomId = newRoomId;
+  };
+};
+
+let roomListener;
+
+createTellnetServer((err, middlewareProps) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+
+  roomListener = createRoomListener(middlewareProps);
+});
+
+use(USER_CONNECTED, ({ l }) => {
   l('Connected to MUD!'.red.bold);
   l(`Type ${'join'.underline} to join.\n`);
-  prompt();
 });
 
 use(/join/, middlewareProps => {
-  const { l, prompt, client } = middlewareProps;
+  const { l, client } = middlewareProps;
   if (client.userId) {
     l('You are already in the game');
-    return prompt();
+    return;
   }
   const name = 'elbow';
   l('You open your eyes, look around you and see that you are in....');
@@ -26,6 +50,7 @@ use(/join/, middlewareProps => {
   const roomId = 1;
   playerEnters(roomId, client.userId);
   renderRoom(middlewareProps);
+  roomListener(roomId);
 });
 
 use(['quit', 'exit'], ({ l, client }) => {
@@ -45,6 +70,7 @@ const moveToDirection = direction => middlewareProps => {
   } else {
     l(`You go ${direction}`);
     renderRoom(middlewareProps);
+    roomListener(newRoomId);
   }
 };
 
@@ -52,20 +78,18 @@ const moveToDirection = direction => middlewareProps => {
 use(['north', 'n'], moveToDirection('north'));
 use(['south', 's'], moveToDirection('south'));
 use(['east', 'e'], moveToDirection('east'));
-use(['west','w'], moveToDirection('west'));
-
+use(['west', 'w'], moveToDirection('west'));
 
 use(['look', 'l'], ({ l, client }) => {
   const { players: { [client.userId]: { roomId } } } = store.getState();
   renderRoom(l, client, roomId);
 });
 
-use(({ l, prompt, command }) => {
+use(({ l, command }) => {
   l(`unknown command: ${command}`);
-  prompt();
 });
 
-const renderRoom = ({ l, client, prompt }) => {
+const renderRoom = ({ l, client }) => {
   const state = store.getState();
   const { players: { [client.userId]: { roomId } } } = state;
   const {
@@ -75,16 +99,10 @@ const renderRoom = ({ l, client, prompt }) => {
   l(room.name.bold);
   l(room.description);
 
-  const userDirectionOptions = (room) => {
-    // console.log('room: ');
-    // console.log(room);
-    const directionOptions = Object
-      .keys(room.directions)
-      //.reduce((memo, direction) => memo + ', ' + direction, '')
-      .join(', ');
-      return directionOptions;
-  };
-  //const directionOptions = userDirectionOptions(room);
+  const userDirectionOptions = ({ directions }) => Object
+    .keys(directions)
+    .join(', ');
+
   l(`From this room you can go: ${userDirectionOptions(room)}`);
 
   const playerNames = room.players
@@ -92,5 +110,4 @@ const renderRoom = ({ l, client, prompt }) => {
     .map(playerId => players[playerId].name).join(', ');
   l();
   l(`${'Players in the room:'.blue.bold} ${playerNames.length ? playerNames : 'none'}`);
-  prompt();
 };
