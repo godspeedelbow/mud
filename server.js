@@ -1,7 +1,7 @@
 import { v4 } from 'uuid';
 
 import colors from 'colors'; // eslint-disable-line no-unused-vars
-
+import isArray from 'lodash/isArray';
 
 const USER_CONNECTED = v4();
 const telnet = require('telnet');
@@ -31,7 +31,7 @@ telnet.createServer(client => {
   const processCommand = getCommandProcessor({ l, prompt, client });
 
   // listen for the actual data from the client
-  client.on('data', command => processCommand(command.toString()));
+  client.on('data', command => processCommand(command.toString().trim()));
 
   processCommand(USER_CONNECTED);
 }).listen(port);
@@ -64,10 +64,17 @@ const middlewares = [];
 const unusableMiddlewares = [];
 function use(matchCommand, response) {
   if (response) {
-    return middlewares.push({
-      matchCommand,
-      response,
-    });
+    if (!isArray(matchCommand)) {
+      return middlewares.push({
+        matchCommand,
+        response,
+      });
+    } else {
+      return matchCommand.forEach(_matchCommand => middlewares.push({
+        matchCommand: _matchCommand,
+        response,
+      }));
+    }
   }
   response = matchCommand;
   unusableMiddlewares.push(response);

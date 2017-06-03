@@ -13,7 +13,8 @@ use(USER_CONNECTED, ({ l, prompt }) => {
   prompt();
 });
 
-use(/join/, ({ l, prompt, client }) => {
+use(/join/, middlewareProps => {
+  const { l, prompt, client } = middlewareProps;
   if (client.userId) {
     l('You are already in the game');
     return prompt();
@@ -24,26 +25,25 @@ use(/join/, ({ l, prompt, client }) => {
   client.userId = playerJoins(name);
   const roomId = 1;
   playerEnters(roomId, client.userId);
-  renderRoom(l, client, roomId);
-  prompt();
+  renderRoom(middlewareProps);
 });
 
-use(/quit/, ({ l, client }) => {
+use(['quit', 'exit'], ({ l, client }) => {
   l('Bye bye!');
   playerQuits(client.userId);
   client.end();
 });
 
-const moveToDirection = direction => ({ l, client, prompt }) => {
+const moveToDirection = direction => middlewareProps => {
+  const { l, client } = middlewareProps;
   console.log(direction);
   const newRoomId = playerMoves(direction, client.userId);
   if (!newRoomId) {
-    l('not allowed');
+    l(`you cannot go ${direction}`);
   } else {
     l(`you go ${direction}`);
-    renderRoom(l, client, newRoomId);
+    renderRoom(middlewareProps);
   }
-  prompt();
 };
 
 use(/north/, moveToDirection('north'));
@@ -58,18 +58,23 @@ use(/^e/, moveToDirection('east'));
 use(/west/, moveToDirection('west'));
 use(/^w/, moveToDirection('west'));
 
+use(['look', 'l'], ({ l, client }) => {
+  const { players: { [client.userId]: { roomId } } } = store.getState();
+  renderRoom(l, client, roomId);
+});
 
 use(({ l, prompt, command }) => {
   l(`unknown command: ${command}`);
   prompt();
 });
 
-const renderRoom = (l, client, roomId) => {
-  // const room = store.getState().rooms[roomId];
+const renderRoom = ({ l, client, prompt }) => {
+  const state = store.getState();
+  const { players: { [client.userId]: { roomId } } } = state;
   const {
     rooms: { [roomId]: room },
     players,
-  } = store.getState();
+  } = state;
   l(room.name.bold);
   l(room.description);
   const playerNames = room.players
@@ -77,4 +82,5 @@ const renderRoom = (l, client, roomId) => {
     .map(playerId => players[playerId].name).join(', ');
   l();
   l(`${'Players in the room:'.blue.bold} ${playerNames.length ? playerNames : 'none'}`);
+  prompt();
 };
