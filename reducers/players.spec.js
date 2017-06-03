@@ -7,11 +7,13 @@ import { playerJoins, playerQuits } from './players';
 //   console.log('state updated to', store.getState().players)
 // );
 
-playerJoins('elbow');
+const playerId = playerJoins('elbow');
 
 expect(store.getState().players).toEqual({
-  0: 'elbow',
+  [playerId]: {
+    name: 'elbow',
+  },
 });
 
-playerQuits(0);
+playerQuits(playerId);
 expect(store.getState().players).toEqual({});
