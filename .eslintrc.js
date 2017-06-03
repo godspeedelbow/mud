@@ -1,12 +1,12 @@
-return;
 module.exports = {
     extends: 'airbnb-base',
     rules: {
         // errors
         'callback-return': ['error', ['callback', 'cb', 'next', 'done']],
-        'no-console': 'error',
+        'no-console': 0,
 
         // warning
+        'no-plusplus': 0,
         'comma-dangle': ['warn', 'always-multiline'],
         'comma-spacing': ['warn', { 'before': false, 'after': true }],
         'global-require': 'warn',
@@ -32,6 +32,7 @@ module.exports = {
         'wrap-iife': ['warn', 'outside'],
 
         // turned off
+        'arrow-parens': [2, 'as-needed'],
         'consistent-return': 'off',
         'func-names': 'off',
         'max-len': 'off',

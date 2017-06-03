@@ -24,11 +24,11 @@ export const playerJoins = name => {
       name,
   });
   return playerCount;
-}
+};
 
-export const playerQuits = id => {
+export const playerQuits = (id) => {
   store.dispatch({
-      type: 'PLAYER_QUIT',
-      id,
+    type: 'PLAYER_QUIT',
+    id,
   });
 };
