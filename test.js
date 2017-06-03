@@ -1,8 +1,9 @@
 const glob = require('glob');
 
-glob('**/*.spec.js', function (err, files) {
+glob('**/*.spec.js', (err, files) => {
   files.forEach(file => {
-    console.log('\ntesting: ' + file);
-    require('./'+file);
+    console.log(`\ntesting: ${file}`);
+    require(`./${file}`); // eslint-disable-line
   });
+  process.exit(0);
 });
