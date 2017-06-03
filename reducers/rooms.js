@@ -7,7 +7,36 @@ const world = {
     name: 'Limbo',
     description: 'You are in a void where nothing is everything and everything is nothing.',
     players: [],
+    directions: {
+      north: 2,
+    },
   },
+  2: {
+    name: 'The Neighboring Room',
+    description: 'It worked!',
+    players: [],
+    directions: {
+      south: 1,
+      west: 3,
+      east: 4,
+    },
+  },
+  3: {
+    name: '3rd Room',
+    description: 'this is nice',
+    players: [],
+    directions: {
+        east: 2,
+    },
+  },
+  4: {
+    name: '4rd Room',
+    description: 'this is less nice',
+    players: [],
+    directions: {
+      west: 2,
+    },
+  }
 };
 export default function reduceRooms(state = world, action) {
   switch (action.type) {
@@ -46,4 +75,21 @@ export const playerLeaves = (roomId, playerId) => {
     roomId,
     playerId,
   });
+};
+
+export const playerMoves = (direction, playerId) => {
+  const { players, rooms } = store.getState();
+  const { [playerId]: { roomId } } = players;
+  const room = rooms[roomId];
+
+  const newRoomId = room.directions[direction];
+  if (!newRoomId) {
+    return false;
+  }
+  store.dispatch({
+    type: 'PLAYER_ENTERS',
+    roomId: newRoomId,
+    playerId,
+  });
+  return newRoomId;
 };

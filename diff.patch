@@ -1,0 +1,41 @@
+diff --git a/reducers/players.spec.js b/reducers/players.spec.js
+index 5a8ee5c..30430dd 100644
+--- a/reducers/players.spec.js
++++ b/reducers/players.spec.js
+@@ -7,11 +7,13 @@ import { playerJoins, playerQuits } from './players';
+ //   console.log('state updated to', store.getState().players)
+ // );
+ 
+-playerJoins('elbow');
++const playerId = playerJoins('elbow');
+ 
+ expect(store.getState().players).toEqual({
+-  0: 'elbow',
++  [playerId]: {
++    name: 'elbow',
++  },
+ });
+ 
+-playerQuits(0);
++playerQuits(playerId);
+ expect(store.getState().players).toEqual({});
+diff --git a/reducers/rooms.spec.js b/reducers/rooms.spec.js
+index 12c9d6e..26c734f 100644
+--- a/reducers/rooms.spec.js
++++ b/reducers/rooms.spec.js
+@@ -7,8 +7,11 @@ import { playerEnters, playerLeaves } from './rooms';
+ //   console.log('state updated to', store.getState().rooms)
+ // );
+ 
+-playerEnters(1, 2);
+-expect(store.getState().rooms[1].players).toEqual([2]);
++const roomId = 1;
++const playerId = 2;
+ 
+-playerLeaves(1, 2);
+-expect(store.getState().players).toEqual({});
++playerEnters(roomId, playerId);
++expect(store.getState().rooms[roomId].players).toEqual([playerId]);
++
++playerLeaves(roomId, playerId);
++expect(store.getState().rooms[roomId].players).toEqual([]);
