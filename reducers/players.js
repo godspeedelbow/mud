@@ -95,7 +95,7 @@ export const burnWitch = (otherPlayerName, roomId, playerId) => {
     },
   } = store.getState();
 
-  const otherPlayerId = Object
+  let otherPlayerId = Object
     .keys(players)
     .find(id => players[id].name === otherPlayerName);
 
@@ -103,7 +103,7 @@ export const burnWitch = (otherPlayerName, roomId, playerId) => {
   if (!otherPlayerId) {
     return false;
   }
-
+  otherPlayerId = parseInt(otherPlayerId, 10);
   const { [otherPlayerId]: { roomId: otherPlayerRoomId } } = players;
   if (otherPlayerRoomId !== roomId) {
     return false;
@@ -129,6 +129,7 @@ export const burnWitch = (otherPlayerName, roomId, playerId) => {
     store.dispatch({
       type: 'PLAYER_DIES',
       playerId: otherPlayerId,
+      roomId,
     });
 
     roomEmitter.emit(1, `${'FLASH!!'.bold.yellow} ${'Lightning strikes.'.bold.white} ${otherPlayerName.blue.bold} is back in the warm womb of ${'Limbo'.bold.white}`);

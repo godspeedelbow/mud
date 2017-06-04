@@ -260,6 +260,14 @@ export default function reduceRooms(state = world, action) {
         };
       }
       return newState;
+    case 'PLAYER_DIES':
+      return {
+        ...state,
+        [action.roomId]: {
+          ...state[action.roomId],
+          players: without(state[action.roomId].players, action.playerId),
+        },
+      };
     default:
       return state;
   }
