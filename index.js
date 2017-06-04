@@ -9,20 +9,36 @@ import { roomEmitter, playerEmitter } from './eventEmitters';
 
 import { createTellnetServer, use, USER_CONNECTED } from './server';
 
+import { ps } from './art';
+
 const roomListeners = {
-  // userId: roomId
+  // userId: { roomId, listener }
 };
 
 const roomListener = ({ client, l, prompt }, roomId) => {
-  const log = msg => {
+  const listener = msg => {
     l(`${msg}`);
     prompt();
   };
 
-  const oldRoomId = roomListeners[client.userId];
-  oldRoomId && roomEmitter.removeListener(oldRoomId, log); // eslint-disable-line no-unused-expressions
-  roomEmitter.on(roomId, log);
-  roomListeners[client.userId] = roomId;
+  roomUnlistener(client.userId);
+
+  roomEmitter.on(roomId, listener);
+  roomListeners[client.userId] = {
+    roomId,
+    listener,
+  };
+};
+
+const roomUnlistener = userId => {
+  console.log('***** roomListeners', roomListeners)
+  console.log('***** roomListeners[userId]', roomListeners[userId])
+  const { listener, roomId } = roomListeners[userId] || {};
+  if (roomId) {
+    console.log('***** unlisten roomId')
+    roomEmitter.removeListener(roomId, listener); // eslint-disable-line no-unused-expressions
+    roomListeners[userId] = undefined;
+  }
 };
 
 createTellnetServer(err => {
@@ -33,8 +49,10 @@ createTellnetServer(err => {
 });
 
 use(USER_CONNECTED, ({ l }) => {
-  l('Connected to MUD!'.red.bold);
-  l(`Type ${'join'.underline} ${'username'.underline} to join.\n`);
+  ps.rainbow.split('\n').forEach(a => l(a));
+  l();
+  l(`${'Connected to'.white.bold} ${'Purple MUD!'.blue.bold}`);
+  l(`Type ${'join'.underline.bold.white} ${'<username>'.underline.bold.white} to join.\n`);
 });
 
 use(/join/, middlewareProps => {
@@ -44,7 +62,7 @@ use(/join/, middlewareProps => {
     return;
   }
   const name = commands[1];
-  if (!name) {
+  if (!name || name === 'username') {
     return l('Please choose a username');
   }
   const player = playerJoins(name); // this is so hacky
@@ -86,13 +104,15 @@ const moveToDirection = direction => middlewareProps => {
   if (!newRoomId) {
     return l(`You cannot go ${direction}`);
   }
-  if (direction === 'down') {
-    l('You descend.');
-  } else if (direction === 'up') {
-    l('You ascend.');
-  } else {
-    l(`You walk ${direction}.\n`);
-  }
+  roomUnlistener(client.userId);
+  // TODO: fix double movement text
+  // if (direction === 'down') {
+  //   l('You descend.');
+  // } else if (direction === 'up') {
+  //   l('You ascend.');
+  // } else {
+  //   l(`You walk ${direction}.\n`);
+  // }
   renderRoom(middlewareProps);
   roomListener(middlewareProps, newRoomId);
 };
