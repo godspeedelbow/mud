@@ -9,31 +9,27 @@ import { roomEmitter } from './eventEmitters';
 
 import { createTellnetServer, use, USER_CONNECTED } from './server';
 
-const createRoomListener = ({ client, l, prompt }) => {
-  let roomId;
+const roomListeners = {
+  // userId: roomId
+};
 
+const roomListener = ({ client, l, prompt }, roomId) => {
   const log = msg => {
     l(`${msg}`);
     prompt();
   };
 
-  return newRoomId => {
-    // console.log('***** ', client.userId, 'listens to room', newRoomId);
-    roomId && roomEmitter.removeListener(roomId, log); // eslint-disable-line no-unused-expressions
-    roomEmitter.on(newRoomId, log);
-    roomId = newRoomId;
-  };
+  const oldRoomId = roomListeners[client.userId];
+  oldRoomId && roomEmitter.removeListener(oldRoomId, log); // eslint-disable-line no-unused-expressions
+  roomEmitter.on(roomId, log);
+  roomListeners[client.userId] = roomId;
 };
 
-let roomListener;
-
-createTellnetServer((err, middlewareProps) => {
+createTellnetServer(err => {
   if (err) {
     console.error(err);
     process.exit(1);
   }
-
-  roomListener = createRoomListener(middlewareProps);
 });
 
 use(USER_CONNECTED, ({ l }) => {
@@ -59,7 +55,7 @@ use(/join/, middlewareProps => {
     const roomId = 1;
     playerEnters(roomId, client.userId);
     renderRoom(middlewareProps);
-    roomListener(roomId);
+    roomListener(middlewareProps, roomId);
   } else {
     l('Username Taken, try again:');
   }
@@ -90,7 +86,7 @@ const moveToDirection = direction => middlewareProps => {
     l(`You walk ${direction}.\n`);
   }
   renderRoom(middlewareProps);
-  roomListener(newRoomId);
+  roomListener(middlewareProps, newRoomId);
 };
 
 // Direction commands
