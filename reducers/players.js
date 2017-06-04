@@ -11,8 +11,17 @@ export default function reducePlayers(state = {}, action) {
       return Object.assign({}, state, {
         [action.id]: {
           name: action.name,
+          hp: 100,
         },
       });
+    case 'PLAYER_DIES':
+      return {
+        ...state,
+        [action.playerId]: {
+          ...state[action.playerId],
+          roomId: 1,
+        },
+      };
     case 'PLAYER_QUIT':
       return omit(state, action.id);
     case 'PLAYER_ENTERS':
@@ -23,6 +32,15 @@ export default function reducePlayers(state = {}, action) {
           roomId: action.roomId,
         },
       };
+    case 'BURN_WITCH':
+      return {
+        ...state,
+        [action.playerId]: {
+          ...state[action.playerId],
+          hp: state[action.playerId].hp - action.damage,
+        },
+      };
+
     default:
       return state;
   }
@@ -65,4 +83,56 @@ export const playerQuits = id => {
     type: 'PLAYER_QUIT',
     id,
   });
+};
+
+export const burnWitch = (otherPlayerName, roomId, playerId) => {
+  const {
+    players,
+    players: {
+      [playerId]: {
+        name,
+      },
+    },
+  } = store.getState();
+
+  const otherPlayerId = Object
+    .keys(players)
+    .find(id => players[id].name === otherPlayerName);
+
+  // Checks if username is available
+  if (!otherPlayerId) {
+    return false;
+  }
+
+  const { [otherPlayerId]: { roomId: otherPlayerRoomId } } = players;
+  if (otherPlayerRoomId !== roomId) {
+    return false;
+  }
+
+  roomEmitter.emit(roomId, `${'F'.red.bold}${'I'.yellow.bold}${'R'.red.bold}${'E'.yellow.bold}${'!! Burn the witch!'.white.bold} ${otherPlayerName.red} ${'is torched by'.red.bold} ${'an agree mob of Edinburghererehrs'.white.bold}`);
+  const damage = Math.ceil(Math.random() * 40);
+  store.dispatch({
+    type: 'BURN_WITCH',
+    playerId: otherPlayerId,
+    damage,
+  });
+  const { players: { [otherPlayerId]: { hp } } } = store.getState();
+
+  console.log(`${name.yellow.bold} ${'instigates an angry mob to burn'.white.bold} ${name.red.bold}!`);
+  playerEmitter.emit(otherPlayerId, `${'OUCH'.red.bold} ${'That hurt!'.red} ${'You lost'.white} ${damage.toString().red.bold} ${'hp. '.white} ${'New hp:'.yellow.bold} ${`${hp}/100`.white.bold}`);
+
+  if (hp < 0) {
+    console.log(`${otherPlayerName.red.bold} ${'is killed by'.white.bold} ${name.yellow.bold}`);
+    roomEmitter.emit(roomId, `${otherPlayerName.red.bold} ${'dies at the hands of'.white.bold} ${name.yellow.bold} ${'and a mob of angry Edinburghererehrs'.red.bold}`);
+    playerEmitter.emit(otherPlayerId, `${'Your burn wounds are fatal. You scream out your last breath in agony while you curse your fellow Edinburghererehrs.'.red} ${'You are dead.'.red.bold}`);
+
+    store.dispatch({
+      type: 'PLAYER_DIES',
+      playerId: otherPlayerId,
+    });
+
+    roomEmitter.emit(1, `${'FLASH!!'.bold.yellow} ${'Lightning strikes.'.bold.white} ${otherPlayerName.blue.bold} is back in the warm womb of ${'Limbo'.bold.white}`);
+  }
+
+  return true;
 };

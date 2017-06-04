@@ -12,6 +12,7 @@ const world = {
     directions: {
       down: 2,
     },
+    peace: true,
   },
   2: {
     name: 'Planet Purple',
