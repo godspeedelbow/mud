@@ -229,7 +229,7 @@ const world = {
         players: [],
         directions: {
             west: 2,
-            downstairs: 26,
+            down: 26,
         },
     },
     26: {
@@ -237,7 +237,7 @@ const world = {
         description: 'the walls are made out of candy, ants sure must be a problem here',
         players: [],
         directions: {
-            upstairs: 25,
+            up: 25,
         }
     }
 

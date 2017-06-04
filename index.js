@@ -53,7 +53,8 @@ use(['north', 'n'], moveToDirection('north'));
 use(['south', 's'], moveToDirection('south'));
 use(['east', 'e'], moveToDirection('east'));
 use(['west','w'], moveToDirection('west'));
-
+use(['up', 'u'], moveToDirection('up'));
+use(['down', 'd'], moveToDirection('down'));
 
 use(['look', 'l'], ({ l, client }) => {
   const { players: { [client.userId]: { roomId } } } = store.getState();
