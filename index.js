@@ -9,15 +9,16 @@ import { roomEmitter } from './eventEmitters';
 
 import { createTellnetServer, use, USER_CONNECTED } from './server';
 
-const createRoomListener = ({ l, prompt }) => {
+const createRoomListener = ({ client, l, prompt }) => {
   let roomId;
 
   const log = msg => {
-    l(`\n${msg}`);
+    l(`${msg}`);
     prompt();
   };
 
   return newRoomId => {
+    // console.log('***** ', client.userId, 'listens to room', newRoomId);
     roomId && roomEmitter.removeListener(roomId, log); // eslint-disable-line no-unused-expressions
     roomEmitter.on(newRoomId, log);
     roomId = newRoomId;
@@ -69,20 +70,27 @@ use(['quit', 'exit'], ({ l, client }) => {
   client.destroyable = true;
   client.setRawMode(false);
   playerQuits(client.userId);
-  setTimeout(() => client.destroySoon(), 1000);
+  setTimeout(() => client.destroySoon(), 2000);
 });
 
 
 const moveToDirection = direction => middlewareProps => {
   const { l, client } = middlewareProps;
+  const { players: { [client.userId]: player } } = store.getState();
+  if (!player) return;
   const newRoomId = playerMoves(direction, client.userId);
   if (!newRoomId) {
-    l(`you cannot go ${direction}`);
+    return l(`you cannot go ${direction}`);
+  }
+  if (direction === 'down') {
+    l('You descend.');
+  } else if (direction === 'up') {
+    l('You ascend.');
   } else {
     l(`You walk ${direction}.\n`);
-    renderRoom(middlewareProps);
-    roomListener(newRoomId);
   }
+  renderRoom(middlewareProps);
+  roomListener(newRoomId);
 };
 
 // Direction commands

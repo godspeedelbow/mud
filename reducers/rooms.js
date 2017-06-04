@@ -7,18 +7,17 @@ import store from '../store';
 const world = {
   1: {
     name: 'Limbo',
-    description: 'You are in a void where nothing is everything and everything is nothing.',
+    description: 'You are in a void where nothing is everything and everything is nothing.\nDescend from these holy greens to manifest your soul.',
     players: [],
     directions: {
-      north: 2,
+      down: 2,
     },
   },
   2: {
-    name: 'The Neighboring Room',
-    description: 'It worked!',
+    name: 'Planet Purple',
+    description: 'It worked! You are alive and kicking. You feel the blood gushing through your veins, the air breezing through your air and you look around you. Where will you go?',
     players: [],
     directions: {
-      south: 1,
       west: 3,
       east: 4,
     },
@@ -246,21 +245,20 @@ const world = {
 export default function reduceRooms(state = world, action) {
   switch (action.type) {
     case 'PLAYER_ENTERS':
-      return {
+      const newState = {
         ...state,
         [action.roomId]: {
           ...state[action.roomId],
           players: [...state[action.roomId].players, action.playerId],
         },
       };
-    case 'PLAYER_LEAVES':
-      return {
-        ...state,
-        [action.roomId]: {
-          ...state[action.roomId],
-          players: without(state[action.roomId].players, action.playerId),
-        },
-      };
+      if (action.oldRoomId) {
+        newState[action.oldRoomId] = {
+          ...state[action.oldRoomId],
+          players: without(state[action.oldRoomId].players, action.playerId),
+        };
+      }
+      return newState;
     default:
       return state;
   }
@@ -289,10 +287,20 @@ export const playerMoves = (direction, playerId) => {
   store.dispatch({
     type: 'PLAYER_ENTERS',
     roomId: newRoomId,
+    oldRoomId: roomId,
     playerId,
   });
-  roomEmitter.emit(roomId, `${name} walks ${direction}.`);
-  roomEmitter.emit(newRoomId, `${name} walks in from the ${oppossite(direction)}.`);
+  if (direction === 'down') {
+    roomEmitter.emit(roomId, `${name} descends.`);
+    roomEmitter.emit(newRoomId, `${name} descends from above.`);
+  } else if (direction === 'up') {
+    roomEmitter.emit(roomId, `${name} ascends.`);
+    roomEmitter.emit(newRoomId, `${name} ascends from below.`);
+  } else {
+    roomEmitter.emit(roomId, `${name} walks ${direction}.`);
+    roomEmitter.emit(newRoomId, `${name} arrives from the ${oppossite(direction)}.`);
+  }
+
   return newRoomId;
 };
 
@@ -305,3 +313,5 @@ function oppossite(direction) {
   };
   return oppossites[direction];
 }
+
+// Object.keys(world).forEach(roomId => roomEmitter.on(roomId, m => console.log(roomId, m)));

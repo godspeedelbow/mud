@@ -78,7 +78,7 @@ const getCommandProcessor = middlewareProps => command => {
         ...middlewareProps,
       });
     } catch (e) {
-      console.log('middleware crashed:'.red.bold, e.message);
+      console.log('middleware crashed:'.red.bold, e);
     }
   };
 
