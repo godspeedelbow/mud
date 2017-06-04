@@ -1,4 +1,5 @@
 import colors from 'colors'; // eslint-disable-line no-unused-vars
+import tail from 'lodash/tail';
 
 import store from './store';
 
@@ -31,11 +32,8 @@ const roomListener = ({ client, l, prompt }, roomId) => {
 };
 
 const roomUnlistener = userId => {
-  console.log('***** roomListeners', roomListeners)
-  console.log('***** roomListeners[userId]', roomListeners[userId])
   const { listener, roomId } = roomListeners[userId] || {};
   if (roomId) {
-    console.log('***** unlisten roomId')
     roomEmitter.removeListener(roomId, listener); // eslint-disable-line no-unused-expressions
     roomListeners[userId] = undefined;
   }
@@ -161,7 +159,7 @@ const renderRoom = ({ l, client }) => {
 
 use(['look', 'l'], renderRoom);
 
-use(/burn/, middlewareProps => {
+use(/^burn/, middlewareProps => {
   const { l, client, commands } = middlewareProps;
   const { players, rooms } = store.getState();
   const { [client.userId]: player } = players;
@@ -180,4 +178,17 @@ use(/burn/, middlewareProps => {
   if (!burned) {
     l(`${name} is not here...`);
   }
+});
+
+use(/^say/, middlewareProps => {
+  const { l, client, commands } = middlewareProps;
+  const { players: { [client.userId]: player } } = store.getState();
+  if (!player) return;
+
+  const { roomId, name } = player;
+  const message = tail(commands).join(' ').trim();
+  if (!message) {
+    return l('What do you want to say?');
+  }
+  roomEmitter.emit(roomId, `${name.white.bold} ${'says:'.white.bold} ${message}`);
 });
