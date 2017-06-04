@@ -66,3 +66,29 @@ export const playerQuits = id => {
     id,
   });
 };
+
+export const burnWitch = (name, roomId) => {
+  const { players } = store.getState();
+
+  const otherPlayerId = Object
+    .keys(players)
+    .find(id => players[id].name === name);
+
+  // Checks if username is available
+  if (!otherPlayerId) {
+    return false;
+  }
+
+  const { [otherPlayerId]: { roomId: otherPlayerRoomId } } = players;
+  if (otherPlayerRoomId !== roomId) {
+    return false;
+  }
+
+  roomEmitter.emit(roomId, `${'F'.red.bold}${'I'.yellow.bold}${'R'.red.bold}${'E'.yellow.bold}${'!! Burn the witch!'.white.bold} ${name.red} ${'is torched by'.red.bold} ${'an agree mob of Edinburghererehrs'.white.bold}`);
+  store.dispatch({
+    type: 'BURN_WITCH',
+    playerId: otherPlayerId,
+  });
+
+  return true;
+};

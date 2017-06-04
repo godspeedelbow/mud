@@ -2,7 +2,7 @@ import colors from 'colors'; // eslint-disable-line no-unused-vars
 
 import store from './store';
 
-import { playerJoins, playerQuits } from './reducers/players';
+import { playerJoins, playerQuits, burnWitch } from './reducers/players';
 import { playerEnters, playerMoves } from './reducers/rooms';
 
 import { roomEmitter } from './eventEmitters';
@@ -132,3 +132,18 @@ const renderRoom = ({ l, client }) => {
 };
 
 use(['look', 'l'], renderRoom);
+
+use(/burn/, middlewareProps => {
+  const { l, client, commands } = middlewareProps;
+  const { players: { [client.userId]: player } } = store.getState();
+  if (!player) return;
+  const name = commands[1];
+  if (!name) {
+    return l('Who do you want to burn?');
+  }
+
+  const burned = burnWitch(name, player.roomId); // this is so hacky
+  if (!burned) {
+    l(`${name} is not here...`);
+  }
+});

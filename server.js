@@ -39,8 +39,9 @@ const createTellnetServer = done => {
     // listen for the actual data from the client
     client.on('data', c => {
       if (c.toString('hex') === '0d') { // enter
-        processCommand(command);
+        const _command = command;
         command = '';
+        processCommand(_command);
         prompt('');
         return;
       }
