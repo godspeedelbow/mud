@@ -11,7 +11,7 @@ const port = 1337;
 console.log('starting server on port:', port);
 const createTellnetServer = done => {
   createServer({ tty: true }, client => {
-    console.log('new client');
+    console.log('client'.cyan.bold, 'connected'.bold.white);
 
     // make unicode characters work properly
     client.do.transmit_binary();

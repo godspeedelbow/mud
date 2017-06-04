@@ -113,15 +113,18 @@ const renderRoom = ({ l, client }) => {
 
   const userDirectionOptions = ({ directions }) => Object
     .keys(directions)
-    .join(', ');
+    .join(', ')
+    .bold.green;
 
-  l(`From this room you can go: ${userDirectionOptions(room)}`);
+  l();
+  l(`Directions: ${userDirectionOptions(room)}`);
 
   const playerNames = room.players
     .filter(playerId => playerId !== client.userId)
     .map(playerId => players[playerId].name).join(', ');
-  l();
-  l(`${'Players in the room:'.blue.bold} ${playerNames.length ? playerNames : 'none'}`);
+  if (playerNames.length) {
+    l(`${'Players in the room:'} ${playerNames.blue.bold}`);
+  }
 };
 
 use(['look', 'l'], renderRoom);
