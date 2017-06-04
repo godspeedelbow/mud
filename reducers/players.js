@@ -19,7 +19,6 @@ export default function reducePlayers(state = {}, action) {
         ...state,
         [action.playerId]: {
           ...state[action.playerId],
-          hp: 100,
           roomId: 1,
         },
       };

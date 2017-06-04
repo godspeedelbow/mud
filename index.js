@@ -78,9 +78,13 @@ const moveToDirection = direction => middlewareProps => {
   const { l, client } = middlewareProps;
   const { players: { [client.userId]: player } } = store.getState();
   if (!player) return;
+
+  if (player.hp <= 0) {
+    return l(`${'You cannot move.'.bold.white} Your soul is tainted by the blasphimous judgment of the Edinburgh mob.`);
+  }
   const newRoomId = playerMoves(direction, client.userId);
   if (!newRoomId) {
-    return l(`you cannot go ${direction}`);
+    return l(`You cannot go ${direction}`);
   }
   if (direction === 'down') {
     l('You descend.');
