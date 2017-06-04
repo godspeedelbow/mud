@@ -77,7 +77,7 @@ const moveToDirection = direction => middlewareProps => {
   if (!newRoomId) {
     l(`you cannot go ${direction}`);
   } else {
-    l(`You go ${direction}`);
+    l(`You walk ${direction}.\n`);
     renderRoom(middlewareProps);
     roomListener(newRoomId);
   }
@@ -92,7 +92,7 @@ use(['up', 'u'], moveToDirection('up'));
 use(['down', 'd'], moveToDirection('down'));
 
 use(({ l, command }) => {
-  console.log('***** command', command)
+  console.log('unknown command:'.bold, command);
   if (!command) {
     return;
   }

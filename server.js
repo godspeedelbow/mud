@@ -71,11 +71,15 @@ const getCommandProcessor = middlewareProps => command => {
   const commands = command.split(' ');
   const executeMiddleware = response => {
     middlewareExecuted = true;
-    response({
-      command, // raw original command by user
-      commands, // processed command
-      ...middlewareProps,
-    });
+    try {
+      response({
+        command, // raw original command by user
+        commands, // processed command
+        ...middlewareProps,
+      });
+    } catch (e) {
+      console.log('middleware crashed:'.red.bold, e.message);
+    }
   };
 
   middlewares.forEach(({ matchCommand, response }) => {

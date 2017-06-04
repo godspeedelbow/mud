@@ -317,5 +317,3 @@ function oppossite(direction) {
   };
   return oppossites[direction];
 }
-
-Object.keys(world).forEach(roomId => roomEmitter.on(roomId, str => console.log(roomId, str)));
