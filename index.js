@@ -39,13 +39,15 @@ use(USER_CONNECTED, ({ l }) => {
 });
 
 use(/join/, middlewareProps => {
-  const { l, prompt, client, commands } = middlewareProps;
+  const { l, client, commands } = middlewareProps;
   if (client.userId) {
     l('You are already in the game');
     return;
   }
   const name = commands[1];
-
+  if (!name) {
+    return l('Please choose a username');
+  }
   const player = playerJoins(name); // this is so hacky
   if (player) {
     l('You open your eyes, look around you and see that you are in....');
@@ -86,8 +88,14 @@ use(['north', 'n'], moveToDirection('north'));
 use(['south', 's'], moveToDirection('south'));
 use(['east', 'e'], moveToDirection('east'));
 use(['west', 'w'], moveToDirection('west'));
+use(['up', 'u'], moveToDirection('up'));
+use(['down', 'd'], moveToDirection('down'));
 
 use(({ l, command }) => {
+  console.log('***** command', command)
+  if (!command) {
+    return;
+  }
   l(`unknown command: ${command}`);
 });
 
