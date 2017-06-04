@@ -5,7 +5,7 @@ import store from './store';
 import { playerJoins, playerQuits, burnWitch } from './reducers/players';
 import { playerEnters, playerMoves } from './reducers/rooms';
 
-import { roomEmitter } from './eventEmitters';
+import { roomEmitter, playerEmitter } from './eventEmitters';
 
 import { createTellnetServer, use, USER_CONNECTED } from './server';
 
@@ -38,7 +38,7 @@ use(USER_CONNECTED, ({ l }) => {
 });
 
 use(/join/, middlewareProps => {
-  const { l, client, commands } = middlewareProps;
+  const { l, client, commands, prompt } = middlewareProps;
   if (client.userId) {
     l('You are already in the game');
     return;
@@ -48,17 +48,21 @@ use(/join/, middlewareProps => {
     return l('Please choose a username');
   }
   const player = playerJoins(name); // this is so hacky
-  if (player) {
-    l('You open your eyes, look around you and see that you are in....');
-    l();
-    client.userId = player;
-    const roomId = 1;
-    playerEnters(roomId, client.userId);
-    renderRoom(middlewareProps);
-    roomListener(middlewareProps, roomId);
-  } else {
-    l('Username Taken, try again:');
+  if (!player) {
+    return l('Username Taken, try again:');
   }
+
+  l('You open your eyes, look around you and see that you are in....');
+  l();
+  client.userId = player;
+  const roomId = 1;
+  playerEnters(roomId, client.userId);
+  renderRoom(middlewareProps);
+  roomListener(middlewareProps, roomId);
+  playerEmitter.on(client.userId, msg => {
+    l(`${msg}`);
+    prompt();
+  });
 });
 
 use(['quit', 'exit'], ({ l, client }) => {
@@ -135,14 +139,20 @@ use(['look', 'l'], renderRoom);
 
 use(/burn/, middlewareProps => {
   const { l, client, commands } = middlewareProps;
-  const { players: { [client.userId]: player } } = store.getState();
+  const { players, rooms } = store.getState();
+  const { [client.userId]: player } = players;
   if (!player) return;
+
+  const { [player.roomId]: { peace, name: roomName } } = rooms;
+  if (peace) {
+    return l(`${roomName} is a peaceful place`);
+  }
   const name = commands[1];
   if (!name) {
     return l('Who do you want to burn?');
   }
 
-  const burned = burnWitch(name, player.roomId); // this is so hacky
+  const burned = burnWitch(name, player.roomId, client.userId); // this is so hacky
   if (!burned) {
     l(`${name} is not here...`);
   }
