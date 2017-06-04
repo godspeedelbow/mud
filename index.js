@@ -3,7 +3,9 @@ import colors from 'colors'; // eslint-disable-line no-unused-vars
 import store from './store';
 
 import { playerJoins, playerQuits } from './reducers/players';
-import { playerEnters, playerMoves, roomEmitter } from './reducers/rooms';
+import { playerEnters, playerMoves } from './reducers/rooms';
+
+import { roomEmitter } from './eventEmitters';
 
 import { createTellnetServer, use, USER_CONNECTED } from './server';
 
@@ -64,15 +66,15 @@ use(/join/, middlewareProps => {
 
 use(['quit', 'exit'], ({ l, client }) => {
   l('Bye bye!');
+  client.destroyable = true;
+  client.setRawMode(false);
   playerQuits(client.userId);
-  client.end();
+  setTimeout(() => client.destroySoon(), 1000);
 });
 
 
 const moveToDirection = direction => middlewareProps => {
   const { l, client } = middlewareProps;
-  // console.log('taken direction: ');
-  // console.log(direction);
   const newRoomId = playerMoves(direction, client.userId);
   if (!newRoomId) {
     l(`you cannot go ${direction}`);

@@ -24,11 +24,11 @@ const createTellnetServer = done => {
     client.setRawMode(true);
 
     // listen for the window size events from the client
-    client.on('window size', e => {
-      if (e.command === 'sb') {
-        console.log('telnet window resized to %d x %d', e.width, e.height);
-      }
-    });
+    // client.on('window size', e => {
+    //   if (e.command === 'sb') {
+    //     console.log('telnet window resized to %d x %d', e.width, e.height);
+    //   }
+    // });
 
     let command = '';
     const l = (message = '') => client.write(`\n${message}`);

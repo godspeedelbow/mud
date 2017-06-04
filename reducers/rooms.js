@@ -1,9 +1,8 @@
 import without from 'lodash/without';
-import { EventEmitter } from 'events';
+
+import { roomEmitter } from '../eventEmitters';
 
 import store from '../store';
-
-export const roomEmitter = new EventEmitter();
 
 const world = {
   1: {
@@ -276,17 +275,6 @@ export const playerEnters = (roomId, playerId) => {
     playerId,
   });
   roomEmitter.emit(roomId, `${'TADA! '.green.bold}${`${name}`.white.bold} ${'appears magically out of thin air.'.green}`);
-};
-
-export const playerLeaves = (roomId, playerId) => {
-  const { players: { [playerId]: { name } } } = store.getState();
-
-  store.dispatch({
-    type: 'PLAYER_LEAVES',
-    roomId,
-    playerId,
-  });
-  roomEmitter.emit(roomId, `POOOFF! ${name} dissolves into thin air.`.red);
 };
 
 export const playerMoves = (direction, playerId) => {
